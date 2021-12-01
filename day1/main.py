@@ -1,3 +1,3 @@
 d = open("input.txt").readlines()
-s = sum([1 for i, x in enumerate(d) if int(x) > int(d[i - 1])])
+s = sum([int(d[i]) > int(d[i - 1]) for i in range(len(d))])
 print(s)
