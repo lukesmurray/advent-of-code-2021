@@ -1,9 +1,7 @@
 with open("input.txt") as f:
-    data = [int(s) for s in f.read().splitlines()]
-    prev = float("inf")
-    increased = 0
-    for value in data:
-        if value > prev:
-            increased += 1
-        prev = value
-    print(increased)
+    p, i = float("inf"), 0
+    for l in f:
+        if int(l) > p:
+            i += 1
+        p = int(l)
+    print(i)
