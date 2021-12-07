@@ -1,9 +1,7 @@
 import fs from "fs/promises";
 import * as R from "ramda";
 
-const isIncreasing = (l: [number, number]): boolean => l[1] > l[0];
-
-const readInput = () => fs.readFile("i", "utf8");
+const readInput = R.curry(fs.readFile)(R.__, "utf8");
 
 const solve = R.pipe(
   readInput,
@@ -14,7 +12,7 @@ const solve = R.pipe(
       R.aperture(3),
       R.map(R.sum),
       R.aperture(2),
-      R.map(isIncreasing),
+      R.map(R.apply(R.flip(R.gt))),
       R.filter(R.identity),
       R.length,
       console.log
@@ -22,4 +20,4 @@ const solve = R.pipe(
   )
 );
 
-await solve();
+await solve("i");

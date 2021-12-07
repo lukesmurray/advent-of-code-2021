@@ -1,53 +1,28 @@
 import fs from "fs/promises";
 import * as R from "ramda";
 
-const input = () => fs.readFile("i", "utf8");
+const readInput = R.curry(fs.readFile)(R.__, "utf8");
+const extractNumber = R.pipe(R.match(/(\d+)/), R.head, Number);
 
-const getNumber = R.pipe(R.match(/\d+/), R.head, Number);
+const state = { h: 0, d: 0 };
 
-type State = {
-  horizontal: number;
-  depth: number;
-};
-
-const incrementHorizontal =
-  (state: State): ((by: number) => State) =>
-  (n) => ({
-    ...state,
-    horizontal: state.horizontal + n,
-  });
-
-const incrementDepth =
-  (state: State): ((by: number) => State) =>
-  (n) => ({
-    ...state,
-    depth: state.depth + n,
-  });
-
-const solve = R.pipe(
-  input,
-  R.andThen(
-    R.pipe(
-      R.split("\n"),
-      R.reduce(
-        (acc, elem) =>
-          R.cond([
-            [
-              R.test(/forward \d+/),
-              R.pipe(getNumber, incrementHorizontal(acc)),
-            ],
-            [R.test(/down \d+/), R.pipe(getNumber, incrementDepth(acc))],
-            [
-              R.test(/up \d+/),
-              R.pipe(getNumber, R.negate, incrementDepth(acc)),
-            ],
-          ])(elem),
-        { horizontal: 0, depth: 0 }
-      ),
-      (v) => R.multiply(R.prop("horizontal", v), R.prop("depth", v)),
-      console.log
-    )
-  )
+const processInput = R.pipe(
+  R.split("\n"),
+  R.map(
+    R.cond([
+      [R.test(/forward \d+/), R.pipe(extractNumber, R.assoc("h", R.__, state))],
+      [R.test(/down \d+/), R.pipe(extractNumber, R.assoc("d", R.__, state))],
+      [
+        R.test(/up \d+/),
+        R.pipe(extractNumber, R.negate, R.assoc("d", R.__, state)),
+      ],
+    ])
+  ),
+  R.reduce(R.mergeWith(R.add), { h: 0, d: 0 }),
+  R.converge(R.multiply, [R.prop("h"), R.prop("d")]),
+  console.log
 );
 
-await solve();
+const solve = R.pipe(readInput, R.andThen(processInput));
+
+await solve("i");
