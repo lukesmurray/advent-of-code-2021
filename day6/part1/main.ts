@@ -44,4 +44,4 @@ const processInput = R.pipe(
 
 const solve = R.pipe(processInput);
 
-solve("t", 80);
+solve("i", 80);
